@@ -1,45 +1,88 @@
-> This codes runs in SAGE.
+# Visual Gale-Shapley Algorithm
 
-Visualizing Gale-Shapley Algorithm
+**Topic: Game Theory / Matching Theory**
 
-This algorithm considers a group of n girls and n boys, and initilizes a random ranking of all girls for each boy and a random ranking of all boys for each girl. 
+A visual implementation of the Gale-Shapley stable marriage algorithm, showing day-by-day proposals and acceptances with color-coded preference tables.
 
-Then the algorithm runs of a day-by-day basis:
-Each day all the guys propose to the top person in their list that they are not rejected by her yet, and all the girls who are proposed to, that day, accept the guy which is ranked best in their list. This process goes on until at the end of a day all the guys are married. Then it stops.
+## Background
 
-Acording to Gale-Shapley, this is a stable matching, in the sense that for any two couples, the at least one of the four people preferes to be with their current spouse.
+The **Gale-Shapley algorithm** (1962) solves the **stable matching problem**: given n boys and n girls, each with a ranked preference list of the opposite group, find a matching where no two people would prefer each other over their assigned partners (a "blocking pair").
 
-The algorithm can be simplified quite a bit if in each step only one guy proposes and the girl right away decides to accept or reject the proposal, but I wanted to visualize it on a day-by-day basis of all possible proposals for that day. This requires more memory, but less cycles through the whole algorithm.
+Key properties of the algorithm:
+- It always produces a **stable matching** (no blocking pairs exist)
+- When boys propose, the result is **boy-optimal** (best possible stable match for every boy) and **girl-pessimal** (worst possible stable match for every girl)
+- To reverse this, simply swap which side proposes
 
-In this implementation I am assuming the boys propose and the girls accept/reject, which according to Gale-Shapley results in the best possible stable marriage for each boy, and worst possible stable marriage for each girl, according to their rankings. However, if you want to switch this process, simply switch the list of boys and girls while calling the function. There's no need to change any of the code.
+### How It Works
 
-The motivation for this piece of code came from a video by Numberphile youtube channle (https://www.youtube.com/watch?v=Qcv1IqHWAzg) interveiwing Dr. Emily Riehl. The names of boys and girls in my small 4x4 example also come from her example. Omid Khanmohammadi sent me the video and after watching it and reading a little bit more about it I was so excited to make a similar example with those tables in it.
+1. **Day 0**: Each person creates a ranked preference list
+2. **Each subsequent day**:
+   - **Proposals**: Every unmatched boy proposes to the highest-ranked girl on his list who hasn't rejected him yet
+   - **Responses**: Each girl who receives proposals accepts the best proposer (according to her ranking), potentially dropping a previous tentative match
+3. **Termination**: The algorithm ends when everyone is matched
 
-Here is a sample run of the code:
+## Implementation
 
-o On day 0 everyone makes their prefrence list:
+The original code ([`stable_marriage`](stable_marriage)) runs in **SageMath** and produces visual preference tables where:
+- **Blue** names are unaffected entries in preference lists
+- **Green** circles mark current proposals / tentative matches
+- **Red** X marks indicate rejections
 
-<img src="GSV0.png" alt="Day 0 - Preferences" width="400"/>
+### Python Equivalent
 
-o On day 1 proposals and responses start until everyone is matched:
+A standalone Python implementation using matplotlib generates equivalent visualizations. The algorithm runs with the same Pride and Prejudice characters from the [Numberphile video](https://www.youtube.com/watch?v=Qcv1IqHWAzg) featuring Dr. Emily Riehl.
 
-<img src="GSV1.png" alt="Day 1 - proposals" width="400"/> <img src="GSV2.png" alt="Day 1 - responses" width="400"/>
+## Example Walkthrough
 
-<img src="GSV3.png" alt="Day 1 - proposals" width="400"/> <img src="GSV4.png" alt="Day 1 - responses" width="400"/>
+Using characters: Boys = {Bingley, Collins, Darcy, Wickham}, Girls = {Charlotte, Elizabeth, Jane, Lydia}
 
-<img src="GSV5.png" alt="Day 1 - proposals" width="400"/> <img src="GSV6.png" alt="Day 1 - responses" width="400"/>
+### Day 0 -- Initial Preferences
 
-<img src="GSV7.png" alt="Day 1 - proposals" width="400"/> <img src="GSV8.png" alt="Day 1 - responses" width="400"/>
+Each person has a ranked preference list (C1 = first choice, C4 = last choice):
 
-To Do:
-- I'd like to do a similar thing for Irving's stable roommate algorithm.
-- Change colors for proposals and tentative marriages (values in the preference list could be 1 for proposal and 2 for tentative match, and then accordingly changes in the DrawTables function)
-- Show in a bipartite graph way with colored (with arrows?) edges.
-- Write a piece to run it for both girls and guys, then finds each persons best and worst possible match. 
+| | Original (SageMath) | Python Reproduction |
+|---|---|---|
+| Day 0 | <img src="GSV0.png" alt="Day 0" width="300"/> | <img src="gale_shapley_step_0.png" alt="Day 0 Python" width="300"/> |
 
-> then the question is can we get everything in between in some match?
+### Day-by-Day Proposals and Responses
 
-- make it to run over a Hall marriage problem That is not everyone is ranked by everyone! 
-- - One possible idea is that everyone who is not ranked gets to the end of the list (randomly?)
-- - or we could just run the Gale-Shapley over the incomplete ranking lists, if it runs out without a solution, that means there is no stable solution. The question would be what are necessary and sufficient conditions for a solution to exist.
-- - The organ matching problem says everyone needs an organ might come with an organ that does or does not match him, but he's to give up his organ only if he finds an organ that matches him. In this case it is just a permanent-rank problem whih tells a principal submatrix of a the biadjacency matrix is has full permanent rank, what is a maximum one and how to find it! Then we can combine it with the ranked problem.
+| Day | Proposals | Responses |
+|-----|-----------|-----------|
+| 1 | <img src="GSV1.png" alt="Day 1 proposals" width="300"/> | <img src="GSV2.png" alt="Day 1 responses" width="300"/> |
+| 2 | <img src="GSV3.png" alt="Day 2 proposals" width="300"/> | <img src="GSV4.png" alt="Day 2 responses" width="300"/> |
+| 3 | <img src="GSV5.png" alt="Day 3 proposals" width="300"/> | <img src="GSV6.png" alt="Day 3 responses" width="300"/> |
+| 4 | <img src="GSV7.png" alt="Day 4 proposals" width="300"/> | <img src="GSV8.png" alt="Day 4 responses" width="300"/> |
+
+### Final Stable Matching (Python)
+
+The bipartite graph shows the final boy-optimal stable matching:
+
+![Gale-Shapley Matching Result](gale_shapley_matching.png)
+
+**Result**: Bingley-Charlotte, Collins-Elizabeth, Darcy-Jane, Wickham-Lydia
+
+This is the best stable outcome for the boys (who propose) and the worst stable outcome for the girls.
+
+## Future Directions
+
+From the original author's notes:
+- Implement Irving's stable roommate algorithm
+- Enhanced color coding for proposals vs tentative marriages
+- Bipartite graph visualization with directed edges
+- Compare boy-proposing vs girl-proposing outcomes to find each person's best and worst stable partner
+- Extend to incomplete preference lists (Hall's marriage theorem)
+- Explore connections to the organ matching problem and permanent rank of biadjacency matrices
+
+## Motivation
+
+Inspired by a [Numberphile video](https://www.youtube.com/watch?v=Qcv1IqHWAzg) interviewing Dr. Emily Riehl. The character names come from her example (Pride and Prejudice). Code developed after Omid Khanmohammadi shared the video.
+
+## Files
+
+| File | Description |
+|------|-------------|
+| `stable_marriage` | Original SageMath implementation of the Gale-Shapley algorithm |
+| `LICENSE` | GNU General Public License v2 |
+| `GSV0.png` - `GSV8.png` | Original SageMath visualization outputs (Day 0 through Day 4) |
+| `gale_shapley_step_*.png` | Python reproduction of the algorithm step visualizations |
+| `gale_shapley_matching.png` | Python bipartite graph showing the final stable matching |
